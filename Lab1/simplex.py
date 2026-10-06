@@ -55,79 +55,101 @@ for limit in limits_canon:
             if len(limit) != len(max(limits_canon, key=len)):
                 limit += [0] * (len(max(limits_canon, key=len)) - len(limit))
 
-print(limits_canon, b_col)
+n_original = len(funct)
 funct = funct + [0] * (len(limits_canon[0]) - len(funct))
 
-n = len(limits_canon[0])
-m = len(limits_canon)
+basis = 0
+def simplex_method(funct, limits_canon, b_col, q, direction, basis):
+    n = len(limits_canon[0])
+    m = len(limits_canon)
 
-simplex_table = [
-    [0.0 for _ in range(n + 1)]
-    for _ in range(m + 1)
-]
+    simplex_table = [
+        [0.0 for _ in range(n + 1)]
+        for _ in range(m + 1)
+    ]
 
-for j in range(n):
-    simplex_table[0][j] = -funct[j]
-
-for i in range(m):
     for j in range(n):
-        simplex_table[i + 1][j] = limits_canon[i][j]
-    simplex_table[i + 1][-1] = b_col[i]
+        if direction == "max":
+            simplex_table[0][j] = -funct[j]
+        else:
+            simplex_table[0][j] = funct[j]
+    simplex_table[0][-1] = q
 
-basis = [n + i for i in range(m)]
-zeros_exist =  not all(x >= 0 for x in simplex_table[0][:-1])
-z = 0
-while zeros_exist:
-    col, min_val  = -1, 1e18
-    for i in range(n):
-        if simplex_table[0][i] < min_val:
-            min_val = simplex_table[0][i]
-            col = i
-    if col == -1:
-        print("Нет свободного столбца, симплекс метод невозможно применить для решения задачи")
-        exit(2)
-
-    key_row, min_ratio = -1, 1e10
     for i in range(m):
-        if simplex_table[i + 1][col] > 0:
-            ratio = simplex_table[i + 1][-1] / simplex_table[i+ 1][col]
-            if 0 <= ratio < min_ratio:
-                min_ratio, key_row = ratio, i + 1
+        for j in range(n):
+            simplex_table[i + 1][j] = limits_canon[i][j]
+        simplex_table[i + 1][-1] = b_col[i]
 
-    if key_row == -1:
-        print("Неограниченные решения, симплекс метод невозможно применить для решения задачи")
-        exit(2)
+    if basis is None:
+        basis = [n + i for i in range(m)]
+    else:
+        basis = basis.copy()
 
-    pivot = simplex_table[key_row][col]
-    for i in range(n + 1):
-        simplex_table[key_row][i] = simplex_table[key_row][i] / pivot
+    zeros_exist =  not all(x >= 0 for x in simplex_table[0][:-1])
+    z = 0
+    while zeros_exist:
+        col, min_val  = -1, 1e18
+        for i in range(n):
+            if simplex_table[0][i] < min_val:
+                min_val = simplex_table[0][i]
+                col = i
+        if col == -1:
+            print("Нет свободного столбца, симплекс метод невозможно применить для решения задачи")
+            exit(2)
 
-    for i in range(m + 1):
-        if i != key_row:
-            div = simplex_table[i][col]
-            for j in range(n + 1):
-                simplex_table[i][j] = simplex_table[i][j] - div * simplex_table[key_row][j]
+        key_row, min_ratio = -1, 1e10
+        for i in range(m):
+            if simplex_table[i + 1][col] > 0:
+                ratio = simplex_table[i + 1][-1] / simplex_table[i+ 1][col]
+                if 0 <= ratio < min_ratio:
+                    min_ratio, key_row = ratio, i + 1
 
-    basis[key_row - 1] = col
-    z = simplex_table[0][-1]
-    zeros_exist = not all(x >= 0 for x in simplex_table[0][:-1])
+        if key_row == -1:
+            print("Неограниченные решения, симплекс метод невозможно применить для решения задачи")
+            exit(2)
 
-ans = [0] * n
-for i in range(m):
-    if basis[i] < n:
-        ans[basis[i]] = simplex_table[i + 1][-1]
+        pivot = simplex_table[key_row][col]
+        for i in range(n + 1):
+            simplex_table[key_row][i] = simplex_table[key_row][i] / pivot
 
-print(f"z =", " + ".join(
-    [f"{funct[i] if int(funct[i]) != funct[i] else int(funct[i])}*x{i + 1}"
-        for i in range(len(funct))]
-))
+        for i in range(m + 1):
+            if i != key_row:
+                div = simplex_table[i][col]
+                for j in range(n + 1):
+                    simplex_table[i][j] = simplex_table[i][j] - div * simplex_table[key_row][j]
+
+        basis[key_row - 1] = col
+        z = simplex_table[0][-1]
+        zeros_exist = not all(x >= 0 for x in simplex_table[0][:-1])
+
+    ans = [0] * n
+    for i in range(m):
+        if basis[i] < n:
+            ans[basis[i]] = simplex_table[i + 1][-1]
+
+    return z, ans, simplex_table, basis
+
+funct_temp = [0] * len(funct)
+g_constant = 0.0 
+
 for i in range(len(limits_canon)):
-    print(' + '.join(
-        [f'{c if int(c) != c else int(c)}*x{j + 1}' for j, c in enumerate(limits_canon[i]) if c]
-    ), "<=",  b_col[i])
+    lim = limits_canon[i]
+    g_constant += b_col[i]
+
+    for j in range(len(funct)-art):
+        funct_temp[j] -= lim[j]
+
+temp_z, temp_ans, temp_simplex_table, basis = simplex_method(funct_temp, limits_canon, b_col, -g_constant, 'min', None)
+
+fin_limits_canon = []
+fin_b_col = []
+for row in temp_simplex_table[1:]:
+    fin_limits_canon.append(row[:-1])
+    fin_b_col.append(row[-1])
+z, ans, simplex_table, basis_new = simplex_method(funct, fin_limits_canon, fin_b_col, temp_z, direct, basis)
 
 if direct == "max":
-    print(f"max z = {z}")
+    print(f"max z = {z:.2f}")
 else:
-    print(f"min z = {-z}")
-print(f"ans = {ans[i]}")
+    print(f"min z = {-z:.2f}")
+print(f"ans = {[round(x, 2) for x in ans]}")
