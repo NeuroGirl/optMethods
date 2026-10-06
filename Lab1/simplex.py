@@ -127,7 +127,7 @@ for i in range(len(limits_canon)):
     ), "<=",  b_col[i])
 
 if direct == "max":
-    print("max z =", z)
+    print(f"max z = {z}")
 else:
-    print("min z =", -z)
-print(f"ans =", ans[i])
+    print(f"min z = {-z}")
+print(f"ans = {ans[i]}")
