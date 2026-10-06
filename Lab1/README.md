@@ -16,3 +16,6 @@
 - min / max в зависимости от задачи (максимизации или минимизации)
 
 Ссылка на подкаст для доп. баллов: https://drive.google.com/drive/folders/1nojiXqMSDEGQD0sa93LUJdoLndyzDgyQ?usp=sharing
+
+Скриншот вывода кодом для задачи этого варианта:
+<img width="847" height="131" alt="Снимок экрана — 2026-10-06 в 18 17 56" src="https://github.com/user-attachments/assets/0b2f3355-b3a3-4905-ab23-f7804e0fde62" />
