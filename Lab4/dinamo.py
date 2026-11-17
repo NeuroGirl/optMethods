@@ -62,7 +62,7 @@ tracemalloc.stop()
 print("Максимальный эффект:", best_effect)
 print("Оптимальные планы:")
 for plan in best_plans:
-    print(f"начальный: {plan[0]}, промежуточный: {plan[1]}, конечный: {plan[2]}")
+    print(f"начальный: {plan[2]}, промежуточный: {plan[1]}, конечный: {plan[0]}")
 
 print(f"Время работы алгоритма: {elapsed_time:.6f} с")
 print(f"Пиковая дополнительная память: {peak_memory / 1024:.2f} КБ")
