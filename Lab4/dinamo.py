@@ -13,9 +13,9 @@ total_trips = 7
 #total_trips = 0
 
 stages = [
-    ("начальный", start, [n for n in start if n % 2 == 0]),
-    ("промежуточный", middle, list(middle)),
     ("конечный", finish, list(finish)),
+    ("промежуточный", middle, list(middle)),
+    ("начальный", start, [n for n in start if n % 2 == 0]),
 ]
 
 tracemalloc.start()
